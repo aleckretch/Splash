@@ -55,6 +55,12 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     [[PHPhotoLibrary sharedPhotoLibrary] registerChangeObserver:self];
 }
 
+- (void)viewDidDisappear:(BOOL)animated {
+    [super viewDidDisappear:animated];
+    [self.tableView reloadData];
+    
+}
+
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
@@ -273,6 +279,7 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     QBAlbumCell *cell = [tableView dequeueReusableCellWithIdentifier:@"AlbumCell" forIndexPath:indexPath];
     cell.tag = indexPath.row;
     cell.borderWidth = 1.0 / self.traitCollection.displayScale;
+    [cell setSelected:NO];
     
     // Thumbnail
     PHAssetCollection *assetCollection = self.assetCollections[indexPath.row];

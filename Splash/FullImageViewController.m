@@ -16,7 +16,49 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view.
+    [self setImage];
+    if (![[PFUser currentUser].username isEqualToString:self.user.username])
+    {
+        [self addViewer];
+    }
+    [self showDate];
+    
+    self.view.backgroundColor = [UIColor blackColor];
+    
+}
+
+- (void)setImage {    
+    PFFile *tileFile = [self.user objectForKey:[NSString stringWithFormat:@"tile%d", self.tileNumber]];
+    self.image = [UIImage imageWithData:tileFile.getData];
+    self.imageView = [[UIImageView alloc] initWithFrame:self.view.bounds];
+    self.imageView.image = self.image;
+    self.imageView.contentMode = UIViewContentModeScaleAspectFit;
+    [self.view addSubview:self.imageView];
+    
+}
+
+- (void)addViewer {
+    [PFCloud callFunctionInBackground:[NSString stringWithFormat:@"addViewer%d", self.tileNumber] withParameters:@{@"toUser": self.user.username, @"fromUser":[PFUser currentUser].username}];
+    
+}
+
+- (void)showDate {
+    UILabel *dateLabel = [[UILabel alloc] initWithFrame:CGRectMake(6, self.view.frame.size.height-35, self.view.frame.size.width-12, 50)];
+    
+    PFObject *dateObject = [self.user objectForKey:[NSString stringWithFormat:@"dateTile%d", self.tileNumber]];
+    NSDate *dateUpdated = (NSDate *)dateObject;
+    NSString *dateUpdatedAgo = [[NSDate date] timeAgoSinceDate:dateUpdated numericDates:YES];
+    
+    dateLabel.text = [NSString stringWithFormat:@"added %@", dateUpdatedAgo].lowercaseString;
+
+    dateLabel.font = [UIFont fontWithName:@"MyriadPro-Regular" size:14];
+    dateLabel.textColor = [UIColor whiteColor];
+    dateLabel.layer.shadowColor = [[UIColor blackColor] CGColor];
+    dateLabel.layer.shadowOffset = CGSizeMake(0.0f, 1.0f);
+    dateLabel.layer.shadowOpacity = 1.0f;
+    dateLabel.layer.shadowRadius = 1.0f;
+    [self.view addSubview:dateLabel];
+    
 }
 
 - (void)didReceiveMemoryWarning {

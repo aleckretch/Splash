@@ -6,6 +6,8 @@
 //  Copyright (c) 2015 Alec Kretch. All rights reserved.
 //
 
+#import <Parse/Parse.h>
+#import <ParseFacebookUtils/PFFacebookUtils.h>
 #import "AppDelegate.h"
 
 @interface AppDelegate ()
@@ -17,7 +19,25 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
+    [Parse setApplicationId:@"Pm7moCskZQp59ojKfWrtb3zXZUSO46vil5kSWkLi" clientKey:@"WvHa9QWUItlR9luXelHgjpMvsDxVlG4oKPMHwDvM"];
+    [PFAnalytics trackAppOpenedWithLaunchOptions:launchOptions];
+    
     return YES;
+    
+}
+
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+    //store device token in current installation and save to parse
+    PFInstallation *currentInstallation = [PFInstallation currentInstallation];
+    currentInstallation[@"username"] = [PFUser currentUser].username;
+    [currentInstallation setDeviceTokenFromData:deviceToken];
+    [currentInstallation saveInBackground];
+    
+}
+
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
+    [PFPush handlePush:userInfo];
+    
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {
@@ -36,10 +56,19 @@
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
     // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+    [FBAppCall handleDidBecomeActiveWithSession:[PFFacebookUtils session]];
+    
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+    [[PFFacebookUtils session] close];
+    
+}
+
+- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
+    return [FBAppCall handleOpenURL:url sourceApplication:sourceApplication withSession:[PFFacebookUtils session]];
+    
 }
 
 @end

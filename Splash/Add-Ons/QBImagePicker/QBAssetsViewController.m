@@ -104,9 +104,11 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     [self updateSelectionInfo];
     
     // Scroll to bottom
-    if (self.fetchResult.count > 0 && self.isMovingToParentViewController && !self.disableScrollToBottom) {
-        NSIndexPath *indexPath = [NSIndexPath indexPathForItem:(self.fetchResult.count - 1) inSection:0];
-        [self.collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:UICollectionViewScrollPositionTop animated:NO];
+    CGSize contentSize = [self.collectionView.collectionViewLayout collectionViewContentSize];
+    if (contentSize.height > self.collectionView.bounds.size.height)
+    {
+        CGPoint targetContentOffset = CGPointMake(0.0f, contentSize.height - self.collectionView.bounds.size.height + 66);
+        [self.collectionView setContentOffset:targetContentOffset];
     }
 }
 
@@ -644,7 +646,7 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
         numberOfColumns = self.imagePickerController.numberOfColumnsInLandscape;
     }
     
-    CGFloat width = (CGRectGetWidth(self.view.frame) - 2.0 * (numberOfColumns + 1)) / numberOfColumns;
+    CGFloat width = (CGRectGetWidth(self.view.frame)/4) - 1;
     
     return CGSizeMake(width, width);
 }
